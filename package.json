@@ -1,0 +1,25 @@
+{
+  "name": "vercel-project-maintenance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier . --write",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "list:projects": "tsx scripts/list-projects.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
+  "dependencies": {
+    "@vercel/sdk": "^1.18.0",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.1",
+    "prettier": "3.7.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
