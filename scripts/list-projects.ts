@@ -105,18 +105,18 @@ async function main(): Promise<void> {
         }
       }
 
-	  const lastDeployment = project.latestDeployments?.[0];
+      const lastDeployment = project.latestDeployments?.[0];
       const lastDeploymentDate = lastDeployment?.createdAt;
-	  const productionTarget = project.targets?.["production"];
+      const productionTarget = project.targets?.["production"];
 
       fs.appendFileSync(
         "output.ndjson",
         JSON.stringify({
           id: project.id,
           name: project.name,
-		  lastDeploymentUrl: lastDeployment?.url,
-		  productionTargetUrl: productionTarget?.url,
-		  productionTargetAliases: productionTarget?.alias,
+          lastDeploymentUrl: lastDeployment?.url,
+          productionTargetUrl: productionTarget?.url,
+          productionTargetAliases: productionTarget?.alias,
           repo: repo,
           lastDeploymentDate: lastDeploymentDate
             ? new Date(lastDeploymentDate).toISOString()
