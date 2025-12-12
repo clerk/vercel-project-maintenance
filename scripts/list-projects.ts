@@ -1,7 +1,10 @@
 import "dotenv/config";
 import fs from "fs";
 import { Vercel } from "@vercel/sdk";
-import { GetProjectsProjects } from "@vercel/sdk/models/getprojectsop.js";
+import {
+  GetProjectsProjects,
+  GetProjectsResponseBody,
+} from "@vercel/sdk/models/getprojectsop.js";
 import { ResponseValidationError } from "@vercel/sdk/models/responsevalidationerror.js";
 import { execSync } from "node:child_process";
 
@@ -38,37 +41,28 @@ async function main(): Promise<void> {
     const allProjects: GetProjectsProjects[] = [];
     let from: string | undefined = undefined;
     for (;;) {
+      let result: GetProjectsResponseBody;
       try {
-        const result = await vercel.projects.getProjects({
+        result = await vercel.projects.getProjects({
           teamId: resolvedTeamId,
           from,
           limit: "100",
         } as any);
-        allProjects.push(...result.projects);
-        const next: unknown = (result as any)?.pagination?.next;
-        if (next === null || typeof next === "undefined") {
-          break;
-        }
-        from = String(next);
       } catch (err) {
         // because of https://github.com/vercel/sdk/issues/175
         if (err instanceof ResponseValidationError) {
-          const raw: any = err.rawValue;
-          const maybeProjects = raw?.projects;
-          if (Array.isArray(maybeProjects)) {
-            allProjects.push(...(maybeProjects as GetProjectsProjects[]));
-            const next: unknown = raw?.pagination?.next;
-            if (next === null || typeof next === "undefined") {
-              break;
-            }
-            from = String(next);
-          } else {
-            throw err;
-          }
+          // Skip validation
+          result = err.rawValue as GetProjectsResponseBody;
         } else {
           throw err;
         }
       }
+      allProjects.push(...result.projects);
+      const next: unknown = (result as any)?.pagination?.next;
+      if (next === null || typeof next === "undefined") {
+        break;
+      }
+      from = String(next);
     }
 
     if (!allProjects.length) {
@@ -114,6 +108,12 @@ async function main(): Promise<void> {
         JSON.stringify({
           id: project.id,
           name: project.name,
+          createdAt: project.createdAt
+            ? new Date(project.createdAt).toISOString()
+            : null,
+          updatedAt: project.updatedAt
+            ? new Date(project.updatedAt).toISOString()
+            : null,
           lastDeploymentUrl: lastDeployment?.url,
           productionTargetUrl: productionTarget?.url,
           productionTargetAliases: productionTarget?.alias,
@@ -121,6 +121,10 @@ async function main(): Promise<void> {
           lastDeploymentDate: lastDeploymentDate
             ? new Date(lastDeploymentDate).toISOString()
             : null,
+          env: project.env?.map((env) => ({
+            key: env.key,
+            target: env.target,
+          })),
         }) + "\n",
       );
     }
