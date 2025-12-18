@@ -13,13 +13,13 @@
   "license": "ISC",
   "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
   "dependencies": {
-    "@vercel/sdk": "^1.18.2",
+    "@vercel/sdk": "^1.18.4",
     "dotenv": "^17.2.3",
     "v0-sdk": "^0.15.3"
   },
   "devDependencies": {
     "@json2csv/cli": "^7.0.6",
-    "@types/node": "^22.19.2",
+    "@types/node": "^22.19.3",
     "prettier": "3.7.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

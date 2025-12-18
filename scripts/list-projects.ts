@@ -47,7 +47,7 @@ async function main(): Promise<void> {
           teamId: resolvedTeamId,
           from,
           limit: "100",
-        } as any);
+        });
       } catch (err) {
         // because of https://github.com/vercel/sdk/issues/175
         if (err instanceof ResponseValidationError) {
