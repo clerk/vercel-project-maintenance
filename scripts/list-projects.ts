@@ -41,7 +41,7 @@ async function main(): Promise<void> {
     const allProjects: GetProjectsProjects[] = [];
     let from: string | undefined = undefined;
     for (;;) {
-      let result: GetProjectsResponseBody;
+     let result: GetProjectsResponseBody;
       try {
         result = await vercel.projects.getProjects({
           teamId: resolvedTeamId,
