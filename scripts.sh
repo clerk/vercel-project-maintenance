@@ -1,0 +1,2 @@
+jq -r 'select( .lastDeploymentDate < "2025-01-01T00:00:00Z" ) | "- [`" + .name + "`](https://vercel.com/clerk-production/" + .name + ")\n  - url: https://" + .productionTargetAliases[0] + "\n  - repo: " + .repo.url + "\n  - last deployment: " + .lastDeploymentDate' output.ndjson
+jq -r 'select( .repo.isArchived ) | "- [`" + .name + "`](https://vercel.com/clerk-production/" + .name + ")\n  - url: https://" + .productionTargetAliases[0] + "\n  - repo: " + .repo.url + "\n  - last deployment: " + .lastDeploymentDate' output.ndjson
