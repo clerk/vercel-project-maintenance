@@ -13,36 +13,17 @@ async function listAllTeamIds(vercel: Vercel): Promise<string[]> {
   let until: number | undefined = undefined;
   const limit = 100;
   for (;;) {
-    try {
-      const res = await vercel.teams.getTeams({
-        limit,
-        until,
-      });
-      const teams = res.teams || [];
-      for (const t of teams) {
-        if (t?.id) teamIds.push(t.id);
-      }
-      const next = res.pagination?.next as number | null | undefined;
-      if (next == null) break;
-      until = next;
-    } catch (err) {
-      if (err instanceof ResponseValidationError) {
-        const raw: any = err.rawValue;
-        const teams = raw?.teams;
-        if (Array.isArray(teams)) {
-          for (const t of teams) {
-            if (t?.id) teamIds.push(t.id);
-          }
-          const next = raw?.pagination?.next as number | null | undefined;
-          if (next == null) break;
-          until = next;
-        } else {
-          throw err;
-        }
-      } else {
-        throw err;
-      }
+    const res = await vercel.teams.getTeams({
+      limit,
+      until,
+    });
+    const teams = res.teams || [];
+    for (const t of teams) {
+      if (t?.id) teamIds.push(t.id);
     }
+    const next = res.pagination?.next;
+    if (next == null) break;
+    until = next;
   }
   return teamIds;
 }
@@ -52,15 +33,15 @@ async function countDeploymentsForTeam(vercel: Vercel, teamId: string) {
   let until: number | undefined = undefined;
   const limit = 100;
   for (;;) {
-      const res = await vercel.deployments.getDeployments({
-        teamId,
-        limit,
-        until,
-      });
-      total += res.deployments?.length ?? 0;
-      const next = res.pagination?.next as number | null | undefined;
-      if (next == null) break;
-      until = next;
+    const res = await vercel.deployments.getDeployments({
+      teamId,
+      limit,
+      until,
+    });
+    total += res.deployments?.length ?? 0;
+    const next = res.pagination?.next;
+    if (next == null) break;
+    until = next;
   }
   return total;
 }
@@ -82,5 +63,3 @@ async function main(): Promise<void> {
 }
 
 void main();
-
-

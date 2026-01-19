@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@vercel/sdk':
-        specifier: ^1.18.5
-        version: 1.18.5(hono@4.11.3)
+        specifier: ^1.18.7
+        version: 1.18.7(hono@4.11.3)
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -230,8 +230,8 @@ packages:
   '@types/node@22.19.3':
     resolution: {integrity: sha512-1N9SBnWYOJTrNZCdh/yJE+t910Y128BoyY+zBLWhL3r0TYzlTmFdXrPwHL9DyFZmlEXNQQolTZh3KHV31QDhyA==}
 
-  '@vercel/sdk@1.18.5':
-    resolution: {integrity: sha512-tzxGuUxYZQpKsf5WrImp4gnCZu3xhHA4j6KLSAQdXgpi/Lfk3JV5YGEDU6ZZBIwXDMdny5DozLd20tz/bKZsfg==}
+  '@vercel/sdk@1.18.7':
+    resolution: {integrity: sha512-2PwPnlkOEj0H7ieSZW1CPYdqgWBhahlaDpwPLk5RtnAwjB3TqqzQIASBrl9Hj+uZrUeXJR2Lt8A+ONaaYMNAfA==}
     hasBin: true
 
   accepts@2.0.0:
@@ -758,7 +758,7 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@vercel/sdk@1.18.5(hono@4.11.3)':
+  '@vercel/sdk@1.18.7(hono@4.11.3)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.25.1(hono@4.11.3)(zod@4.3.5)
       zod: 4.3.5

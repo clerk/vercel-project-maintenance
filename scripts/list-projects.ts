@@ -1,11 +1,6 @@
 import "dotenv/config";
 import fs from "fs";
 import { Vercel } from "@vercel/sdk";
-import {
-  GetProjectsProjects,
-  GetProjectsResponseBody,
-} from "@vercel/sdk/models/getprojectsop.js";
-import { ResponseValidationError } from "@vercel/sdk/models/responsevalidationerror.js";
 import { execSync } from "node:child_process";
 
 const token: string | undefined = process.env.VERCEL_TOKEN;
@@ -38,31 +33,26 @@ async function main(): Promise<void> {
       }
     }
 
-    const allProjects: GetProjectsProjects[] = [];
+    const allProjects = [];
     let from: string | undefined = undefined;
     for (;;) {
-     let result: GetProjectsResponseBody;
-      try {
-        result = await vercel.projects.getProjects({
-          teamId: resolvedTeamId,
-          from,
-          limit: "100",
-        });
-      } catch (err) {
-        // because of https://github.com/vercel/sdk/issues/175
-        if (err instanceof ResponseValidationError) {
-          // Skip validation
-          result = err.rawValue as GetProjectsResponseBody;
-        } else {
-          throw err;
-        }
-      }
-      allProjects.push(...result.projects);
-      const next: unknown = (result as any)?.pagination?.next;
-      if (next === null || typeof next === "undefined") {
+      let result = await vercel.projects.getProjects({
+        teamId: resolvedTeamId,
+        from,
+        limit: "100",
+      });
+
+      if (Array.isArray(result)) {
+        allProjects.push(...result);
         break;
+      } else {
+        allProjects.push(...result.projects);
+        const next = result.pagination?.next;
+        if (next === null || typeof next === "undefined") {
+          break;
+        }
+        from = String(next);
       }
-      from = String(next);
     }
 
     if (!allProjects.length) {
