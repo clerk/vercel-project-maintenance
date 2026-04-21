@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { Vercel } from "@vercel/sdk";
 import * as readline from "readline";
+import { CreateProjectEnv1Target } from "@vercel/sdk/models/createprojectenvop.js";
 
 const token: string | undefined = process.env.VERCEL_TOKEN;
 if (!token) {
@@ -97,12 +98,22 @@ async function main(): Promise<void> {
 
     // Process each environment variable
     for (const envVar of project.env) {
-      // Check if variable has Production in target but NOT Development
-      const hasProduction = envVar.target?.includes("production") ?? false;
-      const hasDevelopment = envVar.target?.includes("development") ?? false;
+      const targets = Array.isArray(envVar.target)
+        ? envVar.target
+        : envVar.target
+          ? [envVar.target]
+          : [];
+      const hasDevelopment = targets.includes("development");
+      const otherTargets = targets.filter((t) => t !== "development");
 
-      if (!hasProduction || hasDevelopment) {
-        continue; // Skip if not Production or if it includes Development
+      // Skip if only used in development environments
+      if (hasDevelopment && otherTargets.length === 0) {
+        continue;
+      }
+
+      if (envVar.key.includes("PUBLIC")) {
+        console.log(`Skipping public variable ${envVar.key}`);
+        continue;
       }
 
       // Get the decrypted value to check if it's already sensitive
@@ -120,18 +131,22 @@ async function main(): Promise<void> {
       }
 
       // Show what we're about to do and ask for confirmation
+      const newTargets: CreateProjectEnv1Target[] = otherTargets;
       console.log("\n" + "=".repeat(60));
       console.log(`Variable: ${envVar.key}`);
-      if (Array.isArray(envVar.target)) {
-        console.log(`Current targets: ${envVar.target.join(", ")}`);
-      } else {
-        console.log(`Current targets: ${envVar.target}`);
+      console.log(`Current targets: ${targets.join(", ")}`);
+      if (hasDevelopment) {
+        console.log(
+          `New targets: ${newTargets.join(", ")} (development removed)`,
+        );
       }
       console.log(
         `Current value: ${value.substring(0, 50)}${value.length > 50 ? "..." : ""}`,
       );
       console.log(`Comment: ${envVar.comment}`);
-      console.log("\nAction: Delete and recreate as 'sensitive' type");
+      console.log(
+        `\nAction: Delete and recreate as 'sensitive' type${hasDevelopment ? ", removing development target" : ""}`,
+      );
       console.log("=".repeat(60));
 
       const confirmed = await askConfirmation(rl, "\nProceed? (y/n): ");
@@ -159,7 +174,7 @@ async function main(): Promise<void> {
             key: envVar.key,
             value: value,
             type: "sensitive",
-            target: <any>envVar.target,
+            target: newTargets,
             comment: envVar.comment,
           },
         });

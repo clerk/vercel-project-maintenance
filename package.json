@@ -6,10 +6,10 @@
   "scripts": {
     "format": "prettier . --write",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "list:projects": "tsx scripts/list-projects.ts",
-    "count:deployments": "tsx scripts/count-deployments.ts",
-    "dump:env-vars": "tsx scripts/dump-env-vars.ts",
-    "make:env-sensitive": "tsx scripts/make-env-sensitive.ts"
+    "list-projects": "tsx scripts/list-projects.ts",
+    "count-deployments": "tsx scripts/count-deployments.ts",
+    "dump-env-vars": "tsx scripts/dump-env-vars.ts",
+    "make-env-sensitive": "tsx scripts/make-env-sensitive.ts"
   },
   "keywords": [],
   "author": "",

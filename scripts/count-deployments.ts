@@ -28,8 +28,24 @@ async function listAllTeamIds(vercel: Vercel): Promise<string[]> {
   return teamIds;
 }
 
-async function countDeploymentsForTeam(vercel: Vercel, teamId: string) {
-  let total = 0;
+type EnvCounts = Record<string, number>;
+
+function envFromTarget(target: string | null | undefined): string {
+  if (target == null) return "preview";
+  return target;
+}
+
+function addCounts(into: EnvCounts, from: EnvCounts): void {
+  for (const [env, n] of Object.entries(from)) {
+    into[env] = (into[env] ?? 0) + n;
+  }
+}
+
+async function countDeploymentsForTeam(
+  vercel: Vercel,
+  teamId: string,
+): Promise<EnvCounts> {
+  const counts: EnvCounts = {};
   let until: number | undefined = undefined;
   const limit = 100;
   for (;;) {
@@ -38,12 +54,26 @@ async function countDeploymentsForTeam(vercel: Vercel, teamId: string) {
       limit,
       until,
     });
-    total += res.deployments?.length ?? 0;
+    for (const d of res.deployments ?? []) {
+      const env = envFromTarget(d.target);
+      counts[env] = (counts[env] ?? 0) + 1;
+    }
     const next = res.pagination?.next;
     if (next == null) break;
     until = next;
   }
-  return total;
+  return counts;
+}
+
+function formatCounts(counts: EnvCounts): string {
+  const known = ["production", "preview"];
+  const parts = known.map((env) => `${env}=${counts[env] ?? 0}`);
+  for (const [env, n] of Object.entries(counts)) {
+    if (!known.includes(env)) parts.push(`${env}=${n}`);
+  }
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  parts.push(`total=${total}`);
+  return parts.join("\t");
 }
 
 async function main(): Promise<void> {
@@ -52,14 +82,14 @@ async function main(): Promise<void> {
   // All teams the token can access
   const teamIds = await listAllTeamIds(vercel);
 
-  let teamsTotal = 0;
+  const grandTotals: EnvCounts = {};
   for (const teamId of teamIds) {
-    const c = await countDeploymentsForTeam(vercel, teamId);
-    teamsTotal += c;
-    console.log(`team=${teamId}\tdeployments=${c}`);
+    const counts = await countDeploymentsForTeam(vercel, teamId);
+    addCounts(grandTotals, counts);
+    console.log(`team=${teamId}\t${formatCounts(counts)}`);
   }
 
-  console.log(`total\tdeployments=${teamsTotal}`);
+  console.log(`total\t${formatCounts(grandTotals)}`);
 }
 
 void main();
