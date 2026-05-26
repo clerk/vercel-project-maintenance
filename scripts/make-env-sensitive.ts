@@ -130,11 +130,17 @@ async function main(): Promise<void> {
         continue;
       }
 
+      // Preserve branch-specific scoping (gitBranch requires target=preview)
+      const gitBranch: string | undefined = envVar.gitBranch ?? undefined;
+
       // Show what we're about to do and ask for confirmation
       const newTargets: CreateProjectEnv1Target[] = otherTargets;
       console.log("\n" + "=".repeat(60));
       console.log(`Variable: ${envVar.key}`);
       console.log(`Current targets: ${targets.join(", ")}`);
+      if (gitBranch) {
+        console.log(`Git branch: ${gitBranch}`);
+      }
       if (hasDevelopment) {
         console.log(
           `New targets: ${newTargets.join(", ")} (development removed)`,
@@ -175,6 +181,7 @@ async function main(): Promise<void> {
             value: value,
             type: "sensitive",
             target: newTargets,
+            ...(gitBranch ? { gitBranch } : {}),
             comment: envVar.comment,
           },
         });
